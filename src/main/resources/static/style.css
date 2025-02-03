@@ -1,0 +1,87 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FF7F00;
+    padding: 10px;
+    color: white;
+}
+
+#titulo {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+}
+.blue-letter{
+    color: #10375C;
+}
+
+#home, #contact {
+    font-size: 18px;
+    margin: 0;
+}
+
+#home a, #contact a {
+    text-decoration: none;
+    color: white;
+}
+
+#home a:hover, #contact a:hover {
+    color: #10375C;
+}
+
+#azul {
+    display: flex;
+    flex-direction: column;
+    height: 250px;
+    width: 100%;
+    background-color: #10375C;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative;
+}
+
+#azul img {
+    position: relative;
+    z-index: 2;
+}
+
+#azul h1{
+    color: rgb(240, 219, 35);
+}
+
+#preto {
+    position: absolute;
+    bottom: 0;
+    height: 50px;
+    width: 100%;
+    background-color: black;
+    z-index: 1;
+}
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+}
+.grid {
+    display: grid;
+    grid-template-columns: auto min-content;
+    justify-content: center;
+    justify-items: end;
+    align-items: center;
+    gap: 5px 10px;
+}
+input {
+    margin: 0;
+}
+
