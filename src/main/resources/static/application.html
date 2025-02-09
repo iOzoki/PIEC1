@@ -6,6 +6,7 @@
     <title>Melodify</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
+    <script type="module" src="recorder.js"></script>
 </head>
 <body>
 <canvas id="visualizer"></canvas>
@@ -20,6 +21,14 @@
     <input type="range" min="-10" max="10" value="0" id="treble">
     <output id="frequency"></output>
     <h1></h1>
+</div>
+<div class="display">
+
+</div>
+<div class="controllers">
+    <button id="startRecord">Gravar</button>
+    <button id="stopRecord" disabled>⏹Parar</button>
+    <a id="downloadLink" style="display: none;">Baixar</a>
 </div>
 </body>
 </html>

@@ -3,7 +3,11 @@ const bass = document.getElementById('bass')
 const mid = document.getElementById('mid')
 const treble = document.getElementById('treble')
 const visualizer = document.getElementById('visualizer')
-const frequencyOutput = document.getElementById('frequency')
+const startRecordButton = document.getElementById('startRecord');
+const stopRecordButton = document.getElementById('stopRecord');
+const downloadLink = document.getElementById('downloadLink');
+let mediaRecorder;
+let audioChunks = [];
 
 const context = new AudioContext()
 const analyserNode = new AnalyserNode(context, { fftSize: 256 })
@@ -67,8 +71,6 @@ async function setupContext() {
         .connect(gainNode)
         .connect(analyserNode)
         .connect(context.destination)
-
-    updateFrequency()
 }
 
 function getGuitar() {
@@ -80,40 +82,6 @@ function getGuitar() {
             latency: 0
         }
     })
-}
-
-function updateFrequency() {
-    const bufferLength = analyserNode.frequencyBinCount
-    const dataArray = new Uint8Array(bufferLength)
-
-    function detectFrequency() {
-        analyserNode.getByteFrequencyData(dataArray)
-
-        let maxIndex = 0
-        let maxValue = 0
-
-        for (let i = 0; i < bufferLength; i++) {
-            if (dataArray[i] > maxValue) {
-                maxValue = dataArray[i]
-                maxIndex = i
-            }
-        }
-
-
-        const nyquist = context.sampleRate / 2
-        const frequency = (maxIndex / bufferLength) * nyquist
-
-
-        if (maxValue > 10) { // Evita ruído baixo
-            frequencyOutput.textContent = `Frequência: ${frequency.toFixed(2)} Hz`
-        } else {
-            frequencyOutput.textContent = 'Nenhum som detectado'
-        }
-
-        requestAnimationFrame(detectFrequency)
-    }
-
-    detectFrequency()
 }
 
 function drawVisualizer() {
@@ -142,3 +110,35 @@ function resize() {
     visualizer.width = visualizer.clientWidth * window.devicePixelRatio
     visualizer.height = visualizer.clientHeight * window.devicePixelRatio
 }
+
+startRecordButton.addEventListener('click', async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+    };
+
+    mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const audioURL = URL.createObjectURL(audioBlob);
+
+        downloadLink.href = audioURL;
+        downloadLink.download = 'gravacao.wav';
+        downloadLink.style.display = 'block';
+        downloadLink.textContent = '📥 Baixar Gravação';
+
+        audioChunks = [];
+    };
+
+    mediaRecorder.start();
+    startRecordButton.disabled = true;
+    stopRecordButton.disabled = false;
+});
+
+stopRecordButton.addEventListener('click', () => {
+    mediaRecorder.stop();
+    startRecordButton.disabled = false;
+    stopRecordButton.disabled = true;
+});
