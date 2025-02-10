@@ -7,11 +7,14 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class ProjetoPiecController {
 
-    //Consertar a misera do mapping
-    @GetMapping("/home")
+    @GetMapping("/")
     public ModelAndView getHome() {
-        ModelAndView view = new ModelAndView();
-        view.setViewName("index");
+        ModelAndView view = new ModelAndView("index");
+        return view;
+    }
+    @GetMapping("/application")
+    public ModelAndView getApplication() {
+        ModelAndView view = new ModelAndView("application");
         return view;
     }
 }
