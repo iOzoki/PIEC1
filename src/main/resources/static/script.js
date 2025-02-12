@@ -2,7 +2,6 @@ const volume = document.getElementById('volume')
 const bass = document.getElementById('bass')
 const mid = document.getElementById('mid')
 const treble = document.getElementById('treble')
-const visualizer = document.getElementById('visualizer')
 const startRecordButton = document.getElementById('startRecord');
 const stopRecordButton = document.getElementById('stopRecord');
 const downloadLink = document.getElementById('downloadLink');
@@ -31,12 +30,8 @@ const trebleEQ = new BiquadFilterNode(context, {
 
 setupEventListeners()
 setupContext()
-resize()
-drawVisualizer()
 
 function setupEventListeners() {
-    window.addEventListener('resize', resize)
-
     volume.addEventListener('input', e => {
         const value = parseFloat(e.target.value)
         gainNode.gain.setTargetAtTime(value, context.currentTime, .01)
@@ -84,33 +79,6 @@ function getGuitar() {
     })
 }
 
-function drawVisualizer() {
-    requestAnimationFrame(drawVisualizer)
-
-    const bufferLength = analyserNode.frequencyBinCount
-    const dataArray = new Uint8Array(bufferLength)
-    analyserNode.getByteFrequencyData(dataArray)
-    const width = visualizer.width
-    const height = visualizer.height
-    const barWidth = width / bufferLength
-
-    const canvasContext = visualizer.getContext('2d')
-    canvasContext.clearRect(0, 0, width, height)
-
-    dataArray.forEach((item, index) => {
-        const y = item / 255 * height / 2
-        const x = barWidth * index
-
-        canvasContext.fillStyle = `hsl(${y / height * 400}, 100%, 50%)`
-        canvasContext.fillRect(x, height - y, barWidth, y)
-    })
-}
-
-function resize() {
-    visualizer.width = visualizer.clientWidth * window.devicePixelRatio
-    visualizer.height = visualizer.clientHeight * window.devicePixelRatio
-}
-
 startRecordButton.addEventListener('click', async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -122,12 +90,18 @@ startRecordButton.addEventListener('click', async () => {
 
     mediaRecorder.onstop = () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-        const audioURL = URL.createObjectURL(audioBlob);
+        const formData = new FormData();
+        formData.append('file', audioBlob, 'audio.wav');
 
-        downloadLink.href = audioURL;
-        downloadLink.download = 'gravacao.wav';
-        downloadLink.style.display = 'block';
-        downloadLink.textContent = '📥 Baixar Gravação';
+        fetch('http://localhost:8080/upload-audio', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Notas capturadas:', data);
+            })
+            .catch(error => console.error('Erro no upload:', error));
 
         audioChunks = [];
     };
